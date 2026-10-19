@@ -15,6 +15,7 @@ pipeline {
         DOCKER_USER = 'phuson0206'
         DOCKER_PASS = 'Dockerhub-tokens'
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        TRIVY_EXIT_CODE = '1'
     }
 
     stages {
