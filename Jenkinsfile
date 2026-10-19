@@ -10,8 +10,6 @@ pipeline {
     environment {
         APP_NAME = 'car-marketplace'
         RELEASE = '1.0.0'
-        BACKEND_DIR = 'car-marketplace/backend'
-        FRONTEND_DIR = 'car-marketplace/frontend'
         DOCKER_USER = 'phuson0206'
         DOCKER_PASS = 'Dockerhub-tokens'
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
@@ -43,7 +41,7 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                dir(BACKEND_DIR) {
+                dir(backend) {
                     sh 'mvn clean package -DskipTests'
                 }
             }
@@ -52,7 +50,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir(BACKEND_DIR) {
+                    dir(backend) {
                         sh '''
                             mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar \
                                 -Dsonar.projectKey=car-marketplace \
@@ -79,7 +77,7 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                dir(FRONTEND_DIR) {
+                dir(frontend) {
                     sh 'npm ci'
                     sh 'npm run build'
                 }
