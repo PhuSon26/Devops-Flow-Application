@@ -89,12 +89,12 @@ pipeline {
                 script {
                     docker.build(
                         "${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}",
-                        "-f ${BACKEND_DIR}/Dockerfile backend"
+                        "-f backend/Dockerfile backend"
                     )
 
                     docker.build(
                         "${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}",
-                        "-f ${FRONTEND_DIR}/Dockerfile frontend"
+                        "-f frontend/Dockerfile frontend"
                     )
                 }
             }
