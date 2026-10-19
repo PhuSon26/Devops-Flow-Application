@@ -41,7 +41,7 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                dir(backend) {
+                dir('backend') {
                     sh 'mvn clean package -DskipTests'
                 }
             }
@@ -50,7 +50,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir(backend) {
+                    dir('backend') {
                         sh '''
                             mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar \
                                 -Dsonar.projectKey=car-marketplace \
@@ -77,7 +77,7 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                dir(frontend) {
+                dir('frontend') {
                     sh 'npm ci'
                     sh 'npm run build'
                 }
@@ -89,12 +89,12 @@ pipeline {
                 script {
                     docker.build(
                         "${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}",
-                        "-f ${BACKEND_DIR}/Dockerfile ${BACKEND_DIR}"
+                        "-f ${BACKEND_DIR}/Dockerfile backend"
                     )
 
                     docker.build(
                         "${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}",
-                        "-f ${FRONTEND_DIR}/Dockerfile ${FRONTEND_DIR}"
+                        "-f ${FRONTEND_DIR}/Dockerfile frontend"
                     )
                 }
             }
