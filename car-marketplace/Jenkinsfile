@@ -1,32 +1,36 @@
+
 pipeline {
     agent any
-    
+
     tools {
         jdk 'jdk21'
         maven 'Maven-3.9'
         nodejs 'nodejs-20'
     }
-    
+
     environment {
         BACKEND_DIR = 'car-marketplace/backend'
         FRONTEND_DIR = 'car-marketplace/frontend'
     }
+
     stages {
         stage('Checkout') {
             steps {
-                git(branch: 'main', url: 'https://github.com/PhuSon26/Devops-Flow-Application.git')
+                checkout scm
             }
         }
+
         stage('Check Tools') {
             steps {
                 sh '''
-                  java -version
-                  mvn -version
-                  node --version
-                  npm --version
+                    java -version
+                    mvn -version
+                    node --version
+                    npm --version
                 '''
             }
         }
+
         stage('Build Backend') {
             steps {
                 dir(BACKEND_DIR) {
@@ -34,6 +38,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Frontend') {
             steps {
                 dir(FRONTEND_DIR) {
@@ -43,11 +48,12 @@ pipeline {
             }
         }
     }
-    
+
     post {
         success {
             echo 'Backend and frontend builds completed successfully!'
         }
+
         failure {
             echo 'Build failed. Check the Console Output.'
         }
