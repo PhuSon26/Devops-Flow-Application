@@ -1,19 +1,13 @@
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: car-marketplace-backend:1.0.0
+    image: phuson0206/car-marketplace-backend:latest
     container_name: car-marketplace-backend
     ports:
       - "8080:8080"
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: car-marketplace-frontend:1.0.0
+    image: phuson0206/car-marketplace-frontend:latest
     container_name: car-marketplace-frontend
     ports:
       - "5173:80"

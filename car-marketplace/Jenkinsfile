@@ -103,6 +103,25 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                dir('car-marketplace') {
+                    sh '''
+                        set -e
+
+                        echo "Pulling latest Docker images..."
+                        docker compose -f Docker-compose.yaml pull
+
+                        echo "Deploying Car Marketplace..."
+                        docker compose -f Docker-compose.yaml up -d
+
+                        echo "Checking deployed containers..."
+                        docker compose -f Docker-compose.yaml ps
+                    '''
+                }
+            }
+        }
     }
 
     post {
