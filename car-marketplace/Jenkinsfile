@@ -83,7 +83,7 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_PASS) {
+                    docker.withRegistry('', DOCKER_PASS) {
                         def backendImage = docker.build(
                             "${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}",
                             "-f ${BACKEND_DIR}/Dockerfile ${BACKEND_DIR}"
