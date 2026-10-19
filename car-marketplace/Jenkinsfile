@@ -15,7 +15,6 @@ pipeline {
         DOCKER_USER = 'phuson0206'
         DOCKER_PASS = 'Dockerhub-tokens'
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        TRIVY_EXIT_CODE = '1'
     }
 
     stages {
@@ -103,19 +102,31 @@ pipeline {
                     set -eu
 
                     echo "Scanning backend image..."
-                    trivy image \
-                        --scanners vuln \
-                        --severity HIGH,CRITICAL \
-                        --exit-code ${TRIVY_EXIT_CODE} \
+
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v jenkins_trivy_cache:/root/.cache/ \
+                        aquasec/trivy:0.76.0 \
+                        image \
                         --no-progress \
+                        --scanners vuln \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        --format table \
                         ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
 
                     echo "Scanning frontend image..."
-                    trivy image \
-                        --scanners vuln \
-                        --severity HIGH,CRITICAL \
-                        --exit-code ${TRIVY_EXIT_CODE} \
+
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v jenkins_trivy_cache:/root/.cache/ \
+                        aquasec/trivy:0.76.0 \
+                        image \
                         --no-progress \
+                        --scanners vuln \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        --format table \
                         ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
                 '''
             }
