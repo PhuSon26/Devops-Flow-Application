@@ -108,30 +108,20 @@ pipeline {
                     set -eu
 
                     echo "Scanning backend image..."
-
-                    docker run --rm \
-                        -v /var/run/docker.sock:/var/run/docker.sock \
-                        -v jenkins_trivy_cache:/root/.cache/ \
-                        aquasec/trivy:0.76.0 \
-                        image \
-                        --no-progress \
+                    trivy image \
                         --scanners vuln \
-                        --exit-code 0 \
                         --severity HIGH,CRITICAL \
+                        --exit-code 0 \
+                        --no-progress \
                         --format table \
                         ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
 
                     echo "Scanning frontend image..."
-
-                    docker run --rm \
-                        -v /var/run/docker.sock:/var/run/docker.sock \
-                        -v jenkins_trivy_cache:/root/.cache/ \
-                        aquasec/trivy:0.76.0 \
-                        image \
-                        --no-progress \
+                    trivy image \
                         --scanners vuln \
-                        --exit-code 0 \
                         --severity HIGH,CRITICAL \
+                        --exit-code 0 \
+                        --no-progress \
                         --format table \
                         ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
                 '''
@@ -159,12 +149,14 @@ pipeline {
                 }
             }
         }
-        
+
         stage("Cleanup Artifacts") {
             steps {
                 script {
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
+                    sh '''
+                    docker rmi ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
+                    docker rmi ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
+                    '''
                 }
             }
         }
