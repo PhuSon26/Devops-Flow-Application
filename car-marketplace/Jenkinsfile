@@ -39,6 +39,20 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir(BACKEND_DIR) {
+                        sh '''
+                          mvn sonar:sonar \
+                            -Dsonar.projectKey=car-marketplace \
+                            -Dsonar.projectName="Car Marketplace"
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Build Frontend') {
             steps {
                 dir(FRONTEND_DIR) {
