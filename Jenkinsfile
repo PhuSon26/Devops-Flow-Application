@@ -154,8 +154,8 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    docker rmi ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
-                    docker rmi ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
+                        docker rmi ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
+                        docker rmi ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
                     '''
                 }
             }
