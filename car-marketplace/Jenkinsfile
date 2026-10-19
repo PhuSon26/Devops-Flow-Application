@@ -80,18 +80,56 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker Image') {
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    docker.build(
+                        "${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}",
+                        "-f ${BACKEND_DIR}/Dockerfile ${BACKEND_DIR}"
+                    )
+
+                    docker.build(
+                        "${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}",
+                        "-f ${FRONTEND_DIR}/Dockerfile ${FRONTEND_DIR}"
+                    )
+                }
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+                sh '''
+                    set -eu
+
+                    echo "Scanning backend image..."
+                    trivy image \
+                        --scanners vuln \
+                        --severity HIGH,CRITICAL \
+                        --exit-code ${TRIVY_EXIT_CODE} \
+                        --no-progress \
+                        ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
+
+                    echo "Scanning frontend image..."
+                    trivy image \
+                        --scanners vuln \
+                        --severity HIGH,CRITICAL \
+                        --exit-code ${TRIVY_EXIT_CODE} \
+                        --no-progress \
+                        ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('Push Docker Images') {
             steps {
                 script {
                     docker.withRegistry('', DOCKER_PASS) {
-                        def backendImage = docker.build(
-                            "${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}",
-                            "-f ${BACKEND_DIR}/Dockerfile ${BACKEND_DIR}"
+                        def backendImage = docker.image(
+                            "${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}"
                         )
 
-                        def frontendImage = docker.build(
-                            "${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}",
-                            "-f ${FRONTEND_DIR}/Dockerfile ${FRONTEND_DIR}"
+                        def frontendImage = docker.image(
+                            "${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}"
                         )
 
                         backendImage.push()
@@ -100,25 +138,6 @@ pipeline {
                         frontendImage.push()
                         frontendImage.push('latest')
                     }
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                dir('car-marketplace') {
-                    sh '''
-                        set -e
-
-                        echo "Pulling latest Docker images..."
-                        docker compose -f Docker-compose.yaml pull
-
-                        echo "Deploying Car Marketplace..."
-                        docker compose -f Docker-compose.yaml up -d
-
-                        echo "Checking deployed containers..."
-                        docker compose -f Docker-compose.yaml ps
-                    '''
                 }
             }
         }
