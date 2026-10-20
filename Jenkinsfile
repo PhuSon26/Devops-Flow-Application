@@ -158,6 +158,16 @@ pipeline {
                 }
             }
         }
+
+        stage('Trigger CD Pipeline') {
+            steps {
+                build job: 'gitops-car-marketplace-cd',
+                    parameters: [
+                        string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")
+                    ],
+                    wait: false
+            }
+        }
     }
 
     post {
