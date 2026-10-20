@@ -173,17 +173,38 @@ pipeline {
     post {
         success {
             echo 'Backend and frontend builds completed successfully!'
-            echo "Backend image: ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}"
-            echo "Frontend image: ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}"
     
             script {
-                slackNotify(
-                    "SUCCESS",
-                    "XeHay CI",
-                    "Build #${BUILD_NUMBER}",
-                    "Image tag: ${IMAGE_TAG}",
-                    "${BUILD_URL}"
-                )
+                def message = """SUCCESS: XeHay CI
+                    Build: #${BUILD_NUMBER}
+                    Backend: ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}
+                    Frontend: ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}
+                    Jenkins: ${BUILD_URL}"""
+    
+                def payload = groovy.json.JsonOutput.toJson([text: message])
+    
+                withCredentials([
+                    string(
+                        credentialsId: 'slack-webhook',
+                        variable: 'SLACK_WEBHOOK_URL'
+                    )
+                ]) {
+                    writeFile(
+                        file: 'slack-payload.json',
+                        text: payload
+                    )
+    
+                    sh '''
+                        set +x
+                        curl --fail --silent --show-error \
+                            --connect-timeout 10 \
+                            --max-time 20 \
+                            -X POST \
+                            -H 'Content-Type: application/json' \
+                            --data-binary @slack-payload.json \
+                            "$SLACK_WEBHOOK_URL"
+                    '''
+                }
             }
         }
     
@@ -191,12 +212,34 @@ pipeline {
             echo 'Build failed. Check the Console Output.'
     
             script {
-                slackNotify(
-                    "FAILURE",
-                    "XeHay CI",
-                    "Build #${BUILD_NUMBER}",
-                    "${BUILD_URL}"
-                )
+                def message = """FAILURE: XeHay CI
+    Build: #${BUILD_NUMBER}
+    Jenkins: ${BUILD_URL}"""
+    
+                def payload = groovy.json.JsonOutput.toJson([text: message])
+    
+                withCredentials([
+                    string(
+                        credentialsId: 'slack-webhook',
+                        variable: 'SLACK_WEBHOOK_URL'
+                    )
+                ]) {
+                    writeFile(
+                        file: 'slack-payload.json',
+                        text: payload
+                    )
+    
+                    sh '''
+                        set +x
+                        curl --fail --silent --show-error \
+                            --connect-timeout 10 \
+                            --max-time 20 \
+                            -X POST \
+                            -H 'Content-Type: application/json' \
+                            --data-binary @slack-payload.json \
+                            "$SLACK_WEBHOOK_URL"
+                    '''
+                }
             }
         }
     
