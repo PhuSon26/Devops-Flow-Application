@@ -172,13 +172,39 @@ pipeline {
 
     post {
         success {
-            echo 'Backend and frontend builds completed successfully!'
-            echo "Backend image: ${DOCKER_USER}/car-marketplace-backend:${IMAGE_TAG}"
-            echo "Frontend image: ${DOCKER_USER}/car-marketplace-frontend:${IMAGE_TAG}"
+            withCredentials([
+                string(
+                    credentialsId: 'slack-webhook',
+                    variable: 'SLACK_WEBHOOK_URL'
+                )
+            ]) {
+                sh '''
+                    curl -fsS -X POST \
+                      -H 'Content-Type: application/json' \
+                      --data "{\"text\":\"SUCCESS: XeHay CI - Build #${BUILD_NUMBER} - Image tag: ${IMAGE_TAG:-unknown} - ${BUILD_URL}\"}" \
+                      "$SLACK_WEBHOOK_URL"
+                '''
+            }
         }
-
+    
         failure {
-            echo 'Build failed. Check the Console Output.'
+            withCredentials([
+                string(
+                    credentialsId: 'slack-webhook',
+                    variable: 'SLACK_WEBHOOK_URL'
+                )
+            ]) {
+                sh '''
+                    curl -fsS -X POST \
+                      -H 'Content-Type: application/json' \
+                      --data "{\"text\":\"FAILURE: XeHay CI - Build #${BUILD_NUMBER} - ${BUILD_URL}\"}" \
+                      "$SLACK_WEBHOOK_URL"
+                '''
+            }
+        }
+    
+        always {
+            echo 'Car-Marketplace CI pipeline finished.'
         }
     }
 }
