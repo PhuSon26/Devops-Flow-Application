@@ -367,28 +367,4 @@ As of **21 October 2026**:
 -   Failure/recovery and rollback demonstration: still needs to be
     executed and documented.
 -   Final demo evidence: capture successful pipeline output, Argo CD
-    sync/health, application access, dashboard metrics, and a
-    recovery/rollback test.
-
-## Week 6 completion checklist
-
--   [x] Slack pipeline notifications configured.
--   [x] Prometheus and Grafana deployed.
--   [x] Car Marketplace Kubernetes dashboard created.
--   [ ] Confirm Grafana Deployment is healthy after attaching persistent
-    storage.
--   [ ] Verify Grafana data/dashboard persists through Pod recreation.
--   [ ] Execute and record an application failure/recovery test.
--   [ ] Execute and record a rollback test.
--   [ ] Capture final screenshots/logs and update project evidence.
-
-## Security notes
-
--   Never commit Jenkins credentials, Docker Hub tokens, Slack webhook
-    URLs, Grafana admin passwords, or Kubernetes secrets.
--   Use environment variables or the appropriate secret store for
-    sensitive configuration.
--   Rotate any credential that has accidentally been committed or
-    exposed.
--   Replace example or local-only addresses with the correct values for
-    your own environment before publishing the repository.
+    sync/health, application access, dashboard metrics, and a  recovery/rollback test.
