@@ -5,8 +5,6 @@ application, to a self-managed Kubernetes cluster running on VMware. The
 project practices containerization, CI/CD, GitOps, application
 observability, and recovery workflows.
 
-> **Project scope:** VMware + kubeadm Kubernetes (not Amazon EKS).
-
 ## Table of contents
 
 -   [Overview](#overview)
